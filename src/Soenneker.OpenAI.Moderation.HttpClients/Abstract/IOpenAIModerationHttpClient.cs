@@ -13,5 +13,7 @@ public interface IOpenAIModerationHttpClient : IDisposable, IAsyncDisposable
     /// <summary>
     /// Gets the cached HTTP client configured for OpenAI moderation.
     /// </summary>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>A task whose result is the requested http Client.</returns>
     ValueTask<HttpClient> Get(CancellationToken cancellationToken = default);
 }
