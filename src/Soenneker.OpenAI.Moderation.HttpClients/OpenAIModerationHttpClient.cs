@@ -12,7 +12,6 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.OpenAI.Moderation.HttpClients;
 
-/// <inheritdoc cref="IOpenAIModerationHttpClient"/>
 public sealed class OpenAIModerationHttpClient : IOpenAIModerationHttpClient
 {
     private const string _cacheKey = nameof(OpenAIModerationHttpClient);
@@ -45,11 +44,10 @@ public sealed class OpenAIModerationHttpClient : IOpenAIModerationHttpClient
 
     public void Dispose()
     {
-        _httpClientCache.RemoveSync(_cacheKey);
     }
 
     public ValueTask DisposeAsync()
     {
-        return _httpClientCache.Remove(_cacheKey);
+        return ValueTask.CompletedTask;
     }
 }

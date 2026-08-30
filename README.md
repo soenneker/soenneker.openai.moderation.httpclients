@@ -1,10 +1,11 @@
 [![](https://img.shields.io/nuget/v/soenneker.openai.moderation.httpclients.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.openai.moderation.httpclients/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.openai.moderation.httpclients/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.openai.moderation.httpclients/actions/workflows/publish-package.yml)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.openai.moderation.httpclients/codeql.yml?label=codeql&style=for-the-badge)](https://github.com/soenneker/soenneker.openai.moderation.httpclients/actions/workflows/codeql.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.openai.moderation.httpclients.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.openai.moderation.httpclients/)
 
 # Soenneker.OpenAI.Moderation.HttpClients
 
-An HTTPClient singleton for OpenAI Moderation.
+Provides a cached `HttpClient` configured for OpenAI moderation requests.
 
 ## Install
 
@@ -12,35 +13,58 @@ An HTTPClient singleton for OpenAI Moderation.
 dotnet add package Soenneker.OpenAI.Moderation.HttpClients
 ```
 
-## Quick start
+## Registration
 
 ```csharp
-using Soenneker.OpenAI.Moderation.HttpClients.Registrars;
 using Microsoft.Extensions.DependencyInjection;
+using Soenneker.OpenAI.Moderation.HttpClients.Registrars;
 
-var services = new ServiceCollection();
-var result = services.AddOpenAIModerationHttpClientAsSingleton();
+services.AddOpenAIModerationHttpClientAsSingleton();
 ```
 
-Adds `IOpenAIModerationHttpClient` as a singleton service.
+Use `AddOpenAIModerationHttpClientAsScoped()` when the wrapper must follow a consumer scope. Both registrations reuse the singleton HTTP-client cache; disposing a scoped wrapper does not destroy the shared client.
 
-## What you get
+## Configuration
 
-- `IOpenAIModerationHttpClient` — An HTTPClient singleton for OpenAI Moderation.
-- `OpenAIModerationHttpClientDefaults` — Configuration keys and defaults for the OpenAI moderation HTTP client.
-- `OpenAIModerationHttpClientRegistrar` — An HTTPClient singleton for OpenAI Moderation.
+The API key is required:
 
-## API at a glance
+```json
+{
+  "OpenAI": {
+    "Moderation": {
+      "ApiKey": "..."
+    }
+  }
+}
+```
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `IOpenAIModerationHttpClient.Get(cancellationToken)` | Gets the cached HTTP client configured for OpenAI moderation. | A task whose result is the requested http Client. |
-| `OpenAIModerationHttpClientRegistrar.AddOpenAIModerationHttpClientAsSingleton(services)` | Adds `IOpenAIModerationHttpClient` as a singleton service. | The same service collection, so additional registrations can be chained. |
-| `OpenAIModerationHttpClientRegistrar.AddOpenAIModerationHttpClientAsScoped(services)` | Adds `IOpenAIModerationHttpClient` as a scoped service. | The same service collection, so additional registrations can be chained. |
+Keep the key in a secret store or environment variable. The client uses `https://api.openai.com/v1` and an `Authorization: Bearer <token>` header by default. Compatible endpoints can be configured with these optional keys:
 
-## Practical notes
+```json
+{
+  "OpenAI": {
+    "ClientBaseUrl": "https://example.com/v1",
+    "AuthHeaderName": "Authorization",
+    "AuthHeaderValueTemplate": "Bearer {token}"
+  }
+}
+```
 
-- Cancellation stops pending work; it does not undo work that has already completed.
-- Reuse the registered client instead of constructing one per operation.
-- Calls that return a cached or singleton value reuse the same instance until the owning service is disposed.
-- Dispose instances you own when their scope ends so held resources can be released.
+`{token}` is replaced with `OpenAI:Moderation:ApiKey`.
+
+## Usage
+
+Inject `IOpenAIModerationHttpClient` and retrieve the cached client:
+
+```csharp
+using Soenneker.OpenAI.Moderation.HttpClients.Abstract;
+
+HttpClient client = await moderationHttpClient.Get(cancellationToken);
+
+using var request = new HttpRequestMessage(HttpMethod.Get, "models");
+using HttpResponseMessage response = await client.SendAsync(request, cancellationToken);
+
+response.EnsureSuccessStatusCode();
+```
+
+Do not dispose the returned `HttpClient`; its lifetime is owned by the singleton cache.

@@ -6,7 +6,7 @@ using Soenneker.Utils.HttpClientCache.Registrar;
 namespace Soenneker.OpenAI.Moderation.HttpClients.Registrars;
 
 /// <summary>
-/// An HTTPClient singleton for OpenAI Moderation
+/// Registers the OpenAI moderation HTTP-client provider and its shared cache.
 /// </summary>
 public static class OpenAIModerationHttpClientRegistrar
 {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Soenneker.OpenAI.Moderation.HttpClients.Abstract;
 
 /// <summary>
-/// An HTTPClient singleton for OpenAI Moderation
+/// Provides the shared HTTP client configured for OpenAI moderation requests.
 /// </summary>
 public interface IOpenAIModerationHttpClient : IDisposable, IAsyncDisposable
 {
@@ -14,6 +14,6 @@ public interface IOpenAIModerationHttpClient : IDisposable, IAsyncDisposable
     /// Gets the cached HTTP client configured for OpenAI moderation.
     /// </summary>
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
-    /// <returns>A task whose result is the requested http Client.</returns>
+    /// <returns>The cached HTTP client. The caller must not dispose it.</returns>
     ValueTask<HttpClient> Get(CancellationToken cancellationToken = default);
 }
