@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Soenneker.OpenAI.Moderation.HttpClients.Abstract;
@@ -17,9 +18,9 @@ public sealed class OpenAIModerationHttpClientTests : HostedUnitTest
     }
 
     [Test]
-    public async ValueTask Get_ConfiguresModerationEndpointAndApiKey()
+    public async ValueTask Get_ConfiguresModerationEndpointAndApiKey(CancellationToken cancellationToken)
     {
-        HttpClient client = await _util.Get();
+        HttpClient client = await _util.Get(cancellationToken: cancellationToken);
 
         client.BaseAddress.Should().Be("https://api.openai.com/v1");
         client.DefaultRequestHeaders.Authorization.Should().NotBeNull();
