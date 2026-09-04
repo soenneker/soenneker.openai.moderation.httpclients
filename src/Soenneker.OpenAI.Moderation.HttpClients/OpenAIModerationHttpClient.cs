@@ -12,6 +12,7 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.OpenAI.Moderation.HttpClients;
 
+/// <inheritdoc cref="IOpenAIModerationHttpClient" />
 public sealed class OpenAIModerationHttpClient : IOpenAIModerationHttpClient
 {
     private const string _cacheKey = nameof(OpenAIModerationHttpClient);
