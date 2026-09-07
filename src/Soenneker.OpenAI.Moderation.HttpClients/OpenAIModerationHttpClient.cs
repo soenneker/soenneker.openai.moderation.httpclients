@@ -31,14 +31,13 @@ public sealed class OpenAIModerationHttpClient : IOpenAIModerationHttpClient
         string baseUrl = _configuration.GetString("OpenAI:ClientBaseUrl") ?? OpenAIModerationHttpClientDefaults.BaseUrl;
         string authHeaderName = _configuration.GetString("OpenAI:AuthHeaderName") ?? "Authorization";
         string authHeaderTemplate = _configuration.GetString("OpenAI:AuthHeaderValueTemplate") ?? "Bearer {token}";
-        string authHeaderValue = authHeaderTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
 
-        return _httpClientCache.Get(_cacheKey, (baseUrl, authHeaderName, authHeaderValue), static state => new HttpClientOptions
+        return _httpClientCache.Get(_cacheKey, (baseUrl, authHeaderName, authHeaderTemplate, apiKey), static state => new HttpClientOptions
         {
             BaseAddress = new Uri(state.baseUrl),
             DefaultRequestHeaders = new Dictionary<string, string>
             {
-                [state.authHeaderName] = state.authHeaderValue
+                [state.authHeaderName] = state.authHeaderTemplate.Replace("{token}", state.apiKey, StringComparison.Ordinal)
             }
         }, cancellationToken);
     }
