@@ -27,7 +27,7 @@ public sealed class OpenAIModerationHttpClient : IOpenAIModerationHttpClient
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        string apiKey = _configuration.GetValueStrict<string>(OpenAIModerationHttpClientDefaults.ApiKeyConfigurationKey);
+        string apiKey = _configuration.GetStringStrict(OpenAIModerationHttpClientDefaults.ApiKeyConfigurationKey);
         string baseUrl = _configuration.GetString("OpenAI:ClientBaseUrl") ?? OpenAIModerationHttpClientDefaults.BaseUrl;
         string authHeaderName = _configuration.GetString("OpenAI:AuthHeaderName") ?? "Authorization";
         string authHeaderTemplate = _configuration.GetString("OpenAI:AuthHeaderValueTemplate") ?? "Bearer {token}";
